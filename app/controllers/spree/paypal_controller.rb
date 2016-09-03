@@ -6,6 +6,7 @@ module Spree
       items = order.line_items.map(&method(:line_item))
 
       additional_adjustments = order.all_adjustments.additional
+      promotion_adjustments = order.all_adjustments.promotion
       tax_adjustments = additional_adjustments.tax
       shipping_adjustments = additional_adjustments.shipping
 
@@ -23,6 +24,18 @@ module Spree
             currencyID: order.currency,
             value: adjustment.amount
           }
+        }
+      end
+
+      promotion_adjustments.eligible.each do |adjustment|
+        next if adjustment.amount.zero?
+        items << {
+            Name: adjustment.label,
+            Quantity: 1,
+            Amount: {
+                currencyID: order.currency,
+                value: adjustment.amount
+            }
         }
       end
 
